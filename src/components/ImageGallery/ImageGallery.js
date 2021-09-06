@@ -15,63 +15,35 @@ function ImageGallery ({query, onClick}) {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idle');
 
-  console.log(query);
-  console.log(page);
-  console.log(pictures);
+  // const fetchPictures = (query, page) => {
+  //   const fetchedPictures = useCallback(
+  //   () => {
+  //     callback
+  //   },
+  //   [query, page]);
+  // };
 
   useEffect(() => {
+    
     if(!query) {
-      return 
-    } 
-    // if(query) {
-    //   setStatus('pending');
-    //   setPictures([]);
-    //   setPage(1);
-    // }
-
-      picturesApi(query, page)
-      .then(pictures => {
-        const picturesArray = pictures.hits;
-        setPictures(pictures => [...pictures, ...picturesArray]);
-        setStatus('resolved');
-        autoScroll();
-      })
-      .catch(error => {
-        setError(error);
-        setStatus('rejected');
-      });
-    // } else if (page > 1) {
-    //   picturesApi(query, page)
-    //   .then(pictures => {
-    //       const picturesArray = pictures.hits;
-    //       setPictures(pictures => [...pictures, ...picturesArray]);
-    //       setStatus('resolved');
-    //       autoScroll();
-    //   })
-    //   .catch(error => {
-    //     setError(error);
-    //     setStatus('rejected');
-    //   });
-    // }
-
+      return
+    }
+    setStatus('pending');
+    // setPictures([]);
+    // setPage(1);
+    picturesApi(query, page)
+    .then(pictures => {
+      const picturesArray = pictures.hits;
+      setPictures(pictures => [...pictures, ...picturesArray]);
+      setStatus('resolved');
+      autoScroll();
+    })
+    .catch(error => {
+      setError(error);
+      setStatus('rejected');
+    });        
   }, [query, page]);
 
-
-  
-
-  // const getPicturesFromNextPage = () => {
-  //   picturesApi(query, page)
-  //     .then(pictures => {
-  //         const picturesArray = pictures.hits;
-  //         setPictures(pictures => [pictures, ...picturesArray]);
-  //         setStatus('resolved');
-  //         autoScroll();
-  //     })
-  //     .catch(error => {
-  //       setError(error);
-  //       setStatus('rejected');
-  //     });
-  // };
 
   const autoScroll = () => {
     window.scrollTo({
@@ -81,7 +53,7 @@ function ImageGallery ({query, onClick}) {
   };
 
   const handleLoadMore = () => {
-      setPage(page => page + 1);
+      setPage(page => page + 1); 
   };
 
   if(status === 'idle') {
