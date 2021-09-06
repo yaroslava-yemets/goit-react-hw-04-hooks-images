@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,35 +15,55 @@ function ImageGallery ({query, onClick}) {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idle');
 
-  // const fetchPictures = (query, page) => {
-  //   const fetchedPictures = useCallback(
-  //   () => {
-  //     callback
-  //   },
-  //   [query, page]);
-  // };
+  const prevQueryIdRef = useRef();
+  useEffect(() => {
+    prevQueryIdRef.current = query;
+  });
+  const prevQueryId = prevQueryIdRef.current;
+
+  const prevPageIdRef = useRef();
+  useEffect(() => {
+    prevPageIdRef.current = page;
+  });
+  const prevPageId = prevPageIdRef.current;
 
   useEffect(() => {
     
     if(!query) {
       return
-    }
-    setStatus('pending');
-    // setPictures([]);
-    // setPage(1);
-    picturesApi(query, page)
-    .then(pictures => {
-      const picturesArray = pictures.hits;
-      setPictures(pictures => [...pictures, ...picturesArray]);
-      setStatus('resolved');
-      autoScroll();
-    })
-    .catch(error => {
-      setError(error);
-      setStatus('rejected');
-    });        
-  }, [query, page]);
+    } 
 
+    if(prevQueryId !== query) {
+      setStatus('pending');
+      setPictures([]);
+      setPage(1);
+      picturesApi(query, page).then(pictures => {
+        const picturesArray = pictures.hits;
+        setPictures(pictures => [...pictures, ...picturesArray]);
+        setStatus('resolved');
+        autoScroll();
+      })
+      .catch(error => {
+        setError(error);
+        setStatus('rejected');
+      }); 
+    };
+
+    if(prevPageId !== page && page > 1) {
+      setStatus('pending');
+      picturesApi(query, page).then(pictures => {
+        const picturesArray = pictures.hits;
+        setPictures(pictures => [...pictures, ...picturesArray]);
+        setStatus('resolved');
+        autoScroll();
+      })
+      .catch(error => {
+        setError(error);
+        setStatus('rejected');
+      }); 
+
+    };
+  }, [query, prevQueryId, page, prevPageId]);
 
   const autoScroll = () => {
     window.scrollTo({
