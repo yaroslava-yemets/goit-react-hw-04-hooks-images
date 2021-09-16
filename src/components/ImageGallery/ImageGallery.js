@@ -14,7 +14,6 @@ function ImageGallery ({query, onClick, handleLoadMore, page}) {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState('idle');
 
-  console.log('pictures in function', pictures);
   useEffect (() => {
     if(query) {
       getImages(query, page);
