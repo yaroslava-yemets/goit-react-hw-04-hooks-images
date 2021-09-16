@@ -9,9 +9,11 @@ function App () {
   const [pictureQuery, setPictureQeury] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalPicture, setModalPicture] = useState('');
+  const [page, setPage] = useState(1);
 
   const handleFormSubmit = (pictureQuery) => {
     setPictureQeury(pictureQuery);
+    setPage(1);
   };
 
   const openModal = (modalPicture) => {
@@ -23,10 +25,18 @@ function App () {
     setShowModal(false)
   };
 
+  const handleLoadMore = () => {
+    setPage(page => page + 1); 
+  };
+
   return (
     <div>
       <Searchbar onSubmit={handleFormSubmit} />
-      <ImageGallery query={pictureQuery} onClick={openModal}/>
+      <ImageGallery query={pictureQuery} 
+        onClick={openModal} 
+        handleLoadMore={handleLoadMore}
+        page={page}
+      />
       {showModal && <Modal modalPicture={modalPicture} onClose={closeModal}/>}
       <ToastContainer position="top-center" autoClose={2000}/>
     </div>

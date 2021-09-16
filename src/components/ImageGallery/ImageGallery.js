@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,71 +9,52 @@ import picturesApi from '../../services/picturesApi';
 import './ImageGallery.css';
 
 
-function ImageGallery ({query, onClick}) {
+function ImageGallery ({query, onClick, handleLoadMore, page}) {
   const [pictures, setPictures] = useState([]);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idle');
 
-  const prevQueryIdRef = useRef();
-  useEffect(() => {
-    prevQueryIdRef.current = query;
-  });
-  const prevQueryId = prevQueryIdRef.current;
+  console.log('pictures in function', pictures);
+  useEffect (() => {
+    if(query) {
+      getImages(query, page);
+    };
+  }, [query, page]);
 
-  const prevPageIdRef = useRef();
-  useEffect(() => {
-    prevPageIdRef.current = page;
-  });
-  const prevPageId = prevPageIdRef.current;
+  const getImages = (query, page) => {
+    if(page === 1 && pictures.length === 0) {
+      fetchPictures(query, page);
+    };
 
-  useEffect(() => {
-    
-    if(!query) {
-      return
-    } 
-
-    if(prevQueryId !== query) {
-      setStatus('pending');
+    if(page === 1 && pictures.length !== 0) {
       setPictures([]);
-      setPage(1);
-      picturesApi(query, page).then(pictures => {
-        const picturesArray = pictures.hits;
-        setPictures(pictures => [...pictures, ...picturesArray]);
-        setStatus('resolved');
-        autoScroll();
-      })
-      .catch(error => {
-        setError(error);
-        setStatus('rejected');
-      }); 
+      fetchPictures(query, page);
     };
 
-    if(prevPageId !== page && page > 1) {
-      setStatus('pending');
-      picturesApi(query, page).then(pictures => {
-        const picturesArray = pictures.hits;
-        setPictures(pictures => [...pictures, ...picturesArray]);
-        setStatus('resolved');
-        autoScroll();
-      })
-      .catch(error => {
-        setError(error);
-        setStatus('rejected');
-      }); 
+    if(page > 1) {
+      fetchPictures(query, page);
+    }
+  };
 
-    };
-  }, [query, prevQueryId, page, prevPageId]);
+  const fetchPictures = (query, page) => {
+    setStatus('pending');
+    picturesApi(query, page).then(pictures => {
+      const picturesArray = pictures.hits;
+      setPictures(pictures => [...pictures, ...picturesArray]);
+      setStatus('resolved');
+      autoScroll();
+    })
+    .catch(error => {
+      setError(error);
+      setStatus('rejected');
+    });
+  };
 
   const autoScroll = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
     });
-  };
-
-  const handleLoadMore = () => {
-      setPage(page => page + 1); 
   };
 
   if(status === 'idle') {
@@ -113,6 +94,8 @@ function ImageGallery ({query, onClick}) {
 ImageGallery.propTypes = {
     query: PropTypes.string,
     openModal: PropTypes.func,
+    handleLoadMore: PropTypes.func,
+    page: PropTypes.number,
 };
 
 export default ImageGallery;
