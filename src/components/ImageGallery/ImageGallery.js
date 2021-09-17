@@ -9,28 +9,30 @@ import picturesApi from '../../services/picturesApi';
 import './ImageGallery.css';
 
 
-function ImageGallery ({query, onClick, handleLoadMore, page}) {
+function ImageGallery({ query, onClick, handleLoadMore, page }) {
   const [pictures, setPictures] = useState([]);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState('idle');
 
-  useEffect (() => {
-    if(query) {
+  console.log('page in ImageGallery.js', page);
+
+  useEffect(() => {
+    if (query) {
       getImages(query, page);
     };
   }, [query, page]);
 
   const getImages = (query, page) => {
-    if(page === 1 && pictures.length === 0) {
+    if (page === 1 && pictures.length === 0) {
       fetchPictures(query, page);
     };
 
-    if(page === 1 && pictures.length !== 0) {
+    if (page === 1 && pictures.length !== 0) {
       setPictures([]);
       fetchPictures(query, page);
     };
 
-    if(page > 1) {
+    if (page > 1) {
       fetchPictures(query, page);
     }
   };
@@ -43,10 +45,10 @@ function ImageGallery ({query, onClick, handleLoadMore, page}) {
       setStatus('resolved');
       autoScroll();
     })
-    .catch(error => {
-      setError(error);
-      setStatus('rejected');
-    });
+      .catch(error => {
+        setError(error);
+        setStatus('rejected');
+      });
   };
 
   const autoScroll = () => {
@@ -56,45 +58,45 @@ function ImageGallery ({query, onClick, handleLoadMore, page}) {
     });
   };
 
-  if(status === 'idle') {
+  if (status === 'idle') {
     return <div className="Warning">Write down the word to start searching for pictures</div>
   }
 
-  if(status === 'pending') {
+  if (status === 'pending') {
     return (
       <>
         {pictures.length > 12 && <ul className="ImageGallery">
-            <ImageGalleryItem pictures={pictures} onClick={onClick}/>
+          <ImageGalleryItem pictures={pictures} onClick={onClick} />
         </ul>}
         <Loader />
       </>
     )
   }
 
-  if(status === 'rejected') {
+  if (status === 'rejected') {
     return toast.error(error.message)
   }
 
-  if(status === 'resolved') {
+  if (status === 'resolved') {
     return (
-        <>
+      <>
         <ul className="ImageGallery">
-            <ImageGalleryItem pictures={pictures} onClick={onClick}/>
+          <ImageGalleryItem pictures={pictures} onClick={onClick} />
         </ul>
 
-        {pictures.length > 0 
-            ? <Button onClick={handleLoadMore} /> 
-            : <div className="Warning">You have to write down right word for search</div>}
-        </>
+        {pictures.length > 0
+          ? <Button onClick={handleLoadMore} />
+          : <div className="Warning">You have to write down right word for search</div>}
+      </>
     )
   }
 };
 
 ImageGallery.propTypes = {
-    query: PropTypes.string,
-    openModal: PropTypes.func,
-    handleLoadMore: PropTypes.func,
-    page: PropTypes.number,
+  query: PropTypes.string,
+  openModal: PropTypes.func,
+  handleLoadMore: PropTypes.func,
+  page: PropTypes.number,
 };
 
 export default ImageGallery;
