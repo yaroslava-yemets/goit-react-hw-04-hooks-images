@@ -11,8 +11,6 @@ function App () {
   const [modalPicture, setModalPicture] = useState('');
   const [page, setPage] = useState(1);
 
-  console.log('page in App.js', page);
-  
   const handleFormSubmit = (pictureQuery) => {
     setPictureQeury(pictureQuery);
     setPage(1);
